@@ -1,7 +1,10 @@
 from flask import Flask, make_response, jsonify, request
 from flask_mysqldb import MySQL
+from flask_httpauth import HTTPBasicAuth
 
 app = Flask(__name__)
+auth = HTTPBasicAuth()
+
 app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "root"
@@ -9,6 +12,16 @@ app.config["MYSQL_DB"] = "cs_record"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
 mysql = MySQL(app)
+
+
+@auth.verify_password
+def verify_password(username, password):
+    return username == "rena" and password == "1892"
+
+@app.route("/protected")
+@auth.login_required
+def protected_resource():
+    return jsonify({"message": "You are authorized to access this resource."})
 
 def data_fetch(query, params=None):
     cur = mysql.connection.cursor()
@@ -38,48 +51,56 @@ def output_format(data, format):
     return response
 
 @app.route("/block_record", methods=["GET"])
+@auth.login_required
 def get_block_record():
     format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM block_record""")
     return output_format(data, format)
 
 @app.route("/program_record", methods=["GET"])
+@auth.login_required
 def get_program_record():
     format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM program_record""")
     return output_format(data, format)
 
 @app.route("/year_record", methods=["GET"])
+@auth.login_required
 def get_year_record():
     format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM year_record""")
     return output_format(data, format)
 
 @app.route("/student_block", methods=["GET"])
+@auth.login_required
 def get_student_block():
     format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM student_block""")
     return output_format(data, format)
 
 @app.route("/student_program", methods=["GET"])
+@auth.login_required
 def get_student_program():
     format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM student_program""")
     return output_format(data, format)
 
 @app.route("/student_year", methods=["GET"])
+@auth.login_required
 def get_student_year():
     format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM student_year""")
     return output_format(data, format)
 
 @app.route("/student_record", methods=["GET"])
+@auth.login_required
 def get_student_record():
     format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM student_record""")
     return output_format(data, format)
 
 @app.route("/student_record/<int:student_id>", methods=["GET"])
+@auth.login_required
 def get_student_by_id(student_id):
     format = request.args.get('format', 'json')
     query = """
@@ -93,6 +114,7 @@ def get_student_by_id(student_id):
     return output_format(data, format)
 
 @app.route("/student_program/<int:student_id>/", methods=["GET"])
+@auth.login_required
 def get_student_program_by_ids(student_id):
     format = request.args.get('format', 'json')
     query = """
@@ -105,6 +127,7 @@ def get_student_program_by_ids(student_id):
     return output_format(data, format)
 
 @app.route("/student_block/<int:student_id>/", methods=["GET"])
+@auth.login_required
 def get_student_block_by_ids(student_id):
     format = request.args.get('format', 'json')
     query = """
@@ -117,6 +140,7 @@ def get_student_block_by_ids(student_id):
     return output_format(data, format)
 
 @app.route("/student_year/<int:student_id>/", methods=["GET"])
+@auth.login_required
 def get_student_year_by_ids(student_id):
     format = request.args.get('format', 'json')
     query = """
@@ -129,6 +153,7 @@ def get_student_year_by_ids(student_id):
     return output_format(data, format)
 
 @app.route("/year_students/<int:year_id>", methods=["GET"])
+@auth.login_required
 def get_students_under_year(year_id):
     format = request.args.get('format', 'json')
     query = """
@@ -142,6 +167,7 @@ def get_students_under_year(year_id):
 
 
 @app.route("/student_record", methods=["POST"])
+@auth.login_required
 def add_student_record():
     cur = mysql.connection.cursor()
     info = request.get_json()
@@ -162,6 +188,7 @@ def add_student_record():
     )
 
 @app.route("/student_record/<int:id>", methods=["PUT"])
+@auth.login_required
 def update_student_record(id):
     cur = mysql.connection.cursor()
     info = request.get_json()
@@ -181,6 +208,7 @@ def update_student_record(id):
     )
 
 @app.route("/student_record/<int:id>", methods=["DELETE"])
+@auth.login_required
 def delete_student_record(id):
     cur = mysql.connection.cursor()
     cur.execute("""DELETE FROM student_record WHERE student_id = %s""", (id,))

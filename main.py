@@ -70,5 +70,7 @@ class MyAppTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Student record deleted successfully", response.json["message"])
 
+        
+
 if __name__ == "__main__":
     unittest.main()
