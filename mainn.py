@@ -17,44 +17,84 @@ def data_fetch(query, params=None):
     cur.close()
     return data
 
+def dict_to_xml(data):
+    xml = ['<root>']
+    for item in data:
+        xml.append('<item>')
+        for key, value in item.items():
+            xml.append(f'<{key}>{value}</{key}>')
+        xml.append('</item>')
+    xml.append('</root>')
+    return ''.join(xml)
+
+def output_format(data, format):
+    if format == 'xml':
+        xml_data = dict_to_xml(data)
+        response = make_response(xml_data, 200)
+        response.headers["Content-Type"] = "application/xml"
+    else:  
+        response = make_response(jsonify(data), 200)
+        response.headers["Content-Type"] = "application/json"
+    return response
+
 @app.route("/block_record", methods=["GET"])
 def get_block_record():
+    format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM block_record""")
-    return make_response(jsonify(data), 200)
+    return output_format(data, format)
 
 @app.route("/program_record", methods=["GET"])
 def get_program_record():
+    format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM program_record""")
-    return make_response(jsonify(data), 200)
+    return output_format(data, format)
 
 @app.route("/year_record", methods=["GET"])
 def get_year_record():
+    format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM year_record""")
-    return make_response(jsonify(data), 200)
+    return output_format(data, format)
 
 @app.route("/student_block", methods=["GET"])
 def get_student_block():
+    format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM student_block""")
-    return make_response(jsonify(data), 200)
+    return output_format(data, format)
 
 @app.route("/student_program", methods=["GET"])
 def get_student_program():
+    format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM student_program""")
-    return make_response(jsonify(data), 200)
+    return output_format(data, format)
 
 @app.route("/student_year", methods=["GET"])
 def get_student_year():
+    format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM student_year""")
-    return make_response(jsonify(data), 200)
+    return output_format(data, format)
 
 @app.route("/student_record", methods=["GET"])
 def get_student_record():
+    format = request.args.get('format', 'json')
     data = data_fetch("""SELECT * FROM student_record""")
-    return make_response(jsonify(data), 200)
+    return output_format(data, format)
 
+@app.route("/student_record/<int:student_id>", methods=["GET"])
+def get_student_by_id(student_id):
+    format = request.args.get('format', 'json')
+    query = """
+        SELECT *
+        FROM student_record
+        WHERE student_id = %s
+    """
+    data = data_fetch(query, (student_id,))
+    if not data:
+        return make_response(jsonify({"message": "Student not found"}), 404)
+    return output_format(data, format)
 
 @app.route("/student_program/<int:student_id>/", methods=["GET"])
 def get_student_program_by_ids(student_id):
+    format = request.args.get('format', 'json')
     query = """
         SELECT program_record.*
         FROM student_program
@@ -62,10 +102,11 @@ def get_student_program_by_ids(student_id):
         WHERE student_program.student_id = %s
     """
     data = data_fetch(query, (student_id,))
-    return make_response(jsonify(data), 200)
+    return output_format(data, format)
 
 @app.route("/student_block/<int:student_id>/", methods=["GET"])
 def get_student_block_by_ids(student_id):
+    format = request.args.get('format', 'json')
     query = """
         SELECT block_record.*
         FROM student_block
@@ -73,10 +114,11 @@ def get_student_block_by_ids(student_id):
         WHERE student_block.student_id = %s
     """
     data = data_fetch(query, (student_id,))
-    return make_response(jsonify(data), 200)
+    return output_format(data, format)
 
 @app.route("/student_year/<int:student_id>/", methods=["GET"])
 def get_student_year_by_ids(student_id):
+    format = request.args.get('format', 'json')
     query = """
         SELECT year_record.*
         FROM student_year
@@ -84,10 +126,11 @@ def get_student_year_by_ids(student_id):
         WHERE student_year.student_id = %s
     """
     data = data_fetch(query, (student_id,))
-    return make_response(jsonify(data), 200)
+    return output_format(data, format)
 
 @app.route("/year_students/<int:year_id>", methods=["GET"])
 def get_students_under_year(year_id):
+    format = request.args.get('format', 'json')
     query = """
         SELECT student_record.student_id
         FROM student_year
@@ -95,7 +138,7 @@ def get_students_under_year(year_id):
         WHERE student_year.year_id = %s
     """
     data = data_fetch(query, (year_id,))
-    return make_response(jsonify(data), 200)
+    return output_format(data, format)
 
 
 @app.route("/student_record", methods=["POST"])
