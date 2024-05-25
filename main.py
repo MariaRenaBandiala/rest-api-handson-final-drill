@@ -9,30 +9,41 @@ class MyAppTests(unittest.TestCase):
 
         warnings.simplefilter("ignore", category=DeprecationWarning)
 
-    def test_program_student_table(self):
-        response = self.app.get("/program_student_table")
+    def test_block_record(self):
+        response = self.app.get("/block_record")
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.json, list)  
 
-    def test_program_table(self):
-        response = self.app.get("/program_table")
+    def test_program_record(self):
+        response = self.app.get("/program_record")
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.json, list)  
 
-    def test_st_yr_table(self):
-        response = self.app.get("/st_yr_table")
+    def test_year_record(self):
+        response = self.app.get("/year_record")
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.json, list)  
+
+    def test_student_block(self):
+        response = self.app.get("/student_block")
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.json, list)  
+
+    def test_student_program(self):
+        response = self.app.get("/student_program")
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.json, list)  
+
+    def test_student_year(self):
+        response = self.app.get("/student_year")
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.json, list)  
 
     def test_student_record(self):
         response = self.app.get("/student_record")
         self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.json, list) 
-
-    def test_year(self):
-        response = self.app.get("/year")
-        self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.json, list)  
+
 
     def test_add_student_record(self):
         new_student = {

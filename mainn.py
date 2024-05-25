@@ -5,53 +5,65 @@ app = Flask(__name__)
 app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "root"
-app.config["MYSQL_DB"] = "record"
+app.config["MYSQL_DB"] = "cs_record"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
 mysql = MySQL(app)
 
-def data_fetch(query):
+def data_fetch(query, params=None):
     cur = mysql.connection.cursor()
-    cur.execute(query)
+    cur.execute(query, params)
     data = cur.fetchall()
     cur.close()
     return data
 
-@app.route("/program_student_table", methods=["GET"])
-def get_program_student_table():
-    data = data_fetch("""SELECT * FROM program_student_table""")
+@app.route("/block_record", methods=["GET"])
+def get_block_record():
+    data = data_fetch("""SELECT * FROM block_record""")
     return make_response(jsonify(data), 200)
 
-@app.route("/program_table", methods=["GET"])
-def get_program_table():
-    data = data_fetch("""SELECT * FROM program_table""")
+@app.route("/program_record", methods=["GET"])
+def get_program_record():
+    data = data_fetch("""SELECT * FROM program_record""")
     return make_response(jsonify(data), 200)
 
-@app.route("/st_yr_table", methods=["GET"])
-def get_st_yr_table():
-    data = data_fetch("""SELECT * FROM st_yr_table""")
+@app.route("/year_record", methods=["GET"])
+def get_year_record():
+    data = data_fetch("""SELECT * FROM year_record""")
     return make_response(jsonify(data), 200)
+
+@app.route("/student_block", methods=["GET"])
+def get_student_block():
+    data = data_fetch("""SELECT * FROM student_block""")
+    return make_response(jsonify(data), 200)
+
+@app.route("/student_program", methods=["GET"])
+def get_student_program():
+    data = data_fetch("""SELECT * FROM student_program""")
+    return make_response(jsonify(data), 200)
+
+@app.route("/student_year", methods=["GET"])
+def get_student_year():
+    data = data_fetch("""SELECT * FROM student_year""")
+    return make_response(jsonify(data), 200)
+
 
 @app.route("/student_record", methods=["GET"])
 def get_student_record():
     data = data_fetch("""SELECT * FROM student_record""")
     return make_response(jsonify(data), 200)
 
-@app.route("/year", methods=["GET"])
-def get_year():
-    data = data_fetch("""SELECT * FROM year""")
-    return make_response(jsonify(data), 200)
-
 @app.route("/student_record", methods=["POST"])
 def add_student_record():
     cur = mysql.connection.cursor()
     info = request.get_json()
-    first_name = info["first_name"]
-    last_name = info["last_name"]
-    date_of_birth = info["date_of_birth"]
+    Studentid = info["Studentid"]
+    Name = info["Name"]
+    Email = info["Email"]
+    Year = info["Year level"]
     cur.execute(
-        """INSERT INTO student_record (first_name, last_name, date_of_birth) VALUES (%s, %s, %s)""",
-        (first_name, last_name, date_of_birth),
+        """INSERT INTO student_record (student_id, name, email, year) VALUES (%s, %s, %s, %s)""",
+        (Studentid, Name, Email, Year)
     )
     mysql.connection.commit()
     rows_affected = cur.rowcount
@@ -65,12 +77,12 @@ def add_student_record():
 def update_student_record(id):
     cur = mysql.connection.cursor()
     info = request.get_json()
-    first_name = info["first_name"]
-    last_name = info["last_name"]
-    date_of_birth = info["date_of_birth"]
+    Name = info["Name"]
+    Email = info["Email"]
+    Year = info["Year level"]
     cur.execute(
-        """UPDATE student_record SET first_name = %s, last_name = %s, date_of_birth = %s WHERE student_id = %s""",
-        (first_name, last_name, date_of_birth, id),
+        """UPDATE student_record SET name = %s, email = %s, level = %s WHERE student_id = %s""",
+        (Name, Email, Year, id),
     )
     mysql.connection.commit()
     rows_affected = cur.rowcount
@@ -91,6 +103,7 @@ def delete_student_record(id):
         jsonify({"message": "Student record deleted successfully", "rows_affected": rows_affected}),
         200,
     )
+
 
 if __name__ == "__main__":
     app.run(debug=True)
