@@ -47,11 +47,45 @@ def get_student_year():
     data = data_fetch("""SELECT * FROM student_year""")
     return make_response(jsonify(data), 200)
 
-
 @app.route("/student_record", methods=["GET"])
 def get_student_record():
     data = data_fetch("""SELECT * FROM student_record""")
     return make_response(jsonify(data), 200)
+
+
+@app.route("/student_program/<int:student_id>/", methods=["GET"])
+def get_student_program_by_ids(student_id):
+    query = """
+        SELECT program_record.*
+        FROM student_program
+        INNER JOIN program_record ON student_program.program_id = program_record.program_id
+        WHERE student_program.student_id = %s
+    """
+    data = data_fetch(query, (student_id,))
+    return make_response(jsonify(data), 200)
+
+@app.route("/student_block/<int:student_id>/", methods=["GET"])
+def get_student_block_by_ids(student_id):
+    query = """
+        SELECT block_record.*
+        FROM student_block
+        INNER JOIN block_record ON student_block.block_id = block_record.block_id
+        WHERE student_block.student_id = %s
+    """
+    data = data_fetch(query, (student_id,))
+    return make_response(jsonify(data), 200)
+
+@app.route("/student_year/<int:student_id>/", methods=["GET"])
+def get_student_year_by_ids(student_id):
+    query = """
+        SELECT year_record.*
+        FROM student_year
+        INNER JOIN year_record ON student_year.year_id = year_record.year_id
+        WHERE student_year.student_id = %s
+    """
+    data = data_fetch(query, (student_id,))
+    return make_response(jsonify(data), 200)
+
 
 @app.route("/student_record", methods=["POST"])
 def add_student_record():
