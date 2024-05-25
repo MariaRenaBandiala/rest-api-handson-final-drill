@@ -86,6 +86,17 @@ def get_student_year_by_ids(student_id):
     data = data_fetch(query, (student_id,))
     return make_response(jsonify(data), 200)
 
+@app.route("/year_students/<int:year_id>", methods=["GET"])
+def get_students_under_year(year_id):
+    query = """
+        SELECT student_record.student_id
+        FROM student_year
+        INNER JOIN student_record ON student_year.student_id = student_record.student_id
+        WHERE student_year.year_id = %s
+    """
+    data = data_fetch(query, (year_id,))
+    return make_response(jsonify(data), 200)
+
 
 @app.route("/student_record", methods=["POST"])
 def add_student_record():
