@@ -2,6 +2,7 @@ from flask import Flask, make_response, jsonify, request
 from flask_mysqldb import MySQL
 from flask_httpauth import HTTPBasicAuth
 
+
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
